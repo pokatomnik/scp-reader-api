@@ -1,6 +1,8 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
-export function getRecentDocuments(
-  request: VercelRequest,
-  vercelResponse: VercelResponse
-) {}
+export function makeRecentDocumentsHandler(params: { pageNumber: string }) {
+  return function getRecentDocuments(
+    request: VercelRequest,
+    vercelResponse: VercelResponse
+  ) {};
+}
