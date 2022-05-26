@@ -7,7 +7,7 @@ import { getTags } from './controllers/get.tags';
 
 export const router = new Router({
   notFound(_, response) {
-    response.json(new HttpError(404, 'Not Found'));
+    response.json(new HttpError(404, 'NOT_FOUND', 'No such endpoint'));
   },
 })
   .addHandler('GET', '/v1/documents/all/{pageNumber}', getAllDocuments)

@@ -8,7 +8,13 @@ export default function ApiHandler(
 ) {
   const p = new Array<string>().concat(request.query.p || [])[0];
   if (p === undefined) {
-    return response.send(new HttpError(404, 'NotFound'));
+    return response.send(
+      new HttpError(
+        404,
+        'NOT_FOUND',
+        'Specify requested path (query param "p")'
+      )
+    );
   }
 
   const handler = router.vercelHandler(request.method || 'GET', p);
