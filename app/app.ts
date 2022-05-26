@@ -11,6 +11,6 @@ export const router = new Router({
   },
 })
   .addHandler('GET', '/v1/documents/all/{pageNumber}', getAllDocuments)
-  .addHandler('GET', '/v1/docuemtns/recent/{pageNumber}', getRecentDocuments)
+  .addHandler('GET', '/v1/documents/recent/{pageNumber}', getRecentDocuments)
   .addHandler('GET', '/v1/documents/tags/{tags}', getDocumentsByTags)
   .addHandler('GET', '/v1/tags', getTags);
