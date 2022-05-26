@@ -23,7 +23,6 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "noEmitOnError": true,
-    "noImplicitUseStrict": true,
     "noUncheckedIndexedAccess": true,
     "allowUnusedLabels": true
   },

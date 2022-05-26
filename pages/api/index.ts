@@ -1,18 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { HttpError } from '../../lib/errors';
-import { Router } from '../../lib/router';
-
-const router = new Router({
-  notFound(req, res) {
-    res.json(new HttpError(404, 'Not Found'));
-  },
-})
-  .addHandler('GET', '/first/second/third', (req, res) => {
-    res.send('/first/second/third');
-  })
-  .addHandler('GET', '/foo/{bar}/baz', (req, res) => {
-    res.json(req.query);
-  });
+import { router } from '../../app/app';
 
 export default function ApiHandler(
   request: VercelRequest,
