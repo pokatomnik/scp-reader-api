@@ -1,23 +1,22 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { HttpError } from '../../lib/errors';
-import { router } from '../../app/app';
+import { NotFoundError } from '../../lib/errors';
+import { Application } from '../../app/app';
 
 export default function ApiHandler(
   request: VercelRequest,
   response: VercelResponse
 ) {
-  const p = new Array<string>().concat(request.query.p || [])[0];
-  if (p === undefined) {
+  const [path] = new Array<string>().concat(request.query.p || []);
+  if (path === undefined) {
     return response.send(
-      new HttpError(
-        404,
-        'NOT_FOUND',
-        'Specify requested path (query param "p")'
-      )
+      new NotFoundError('Specify requested path (query param "p")')
     );
   }
 
-  const handler = router.vercelHandler(request.method || 'GET', p);
+  const handler = new Application().router.vercelHandler(
+    request.method || 'GET',
+    path
+  );
 
   handler(request, response);
 }

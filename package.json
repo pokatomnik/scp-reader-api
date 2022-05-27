@@ -13,6 +13,7 @@
     "cheerio": "^1.0.0-rc.11",
     "lodash": "^4.17.21",
     "next": "12.1.4",
+    "next-http-proxy-middleware": "^1.2.4",
     "react": "18.0.0",
     "react-dom": "18.0.0"
   },
