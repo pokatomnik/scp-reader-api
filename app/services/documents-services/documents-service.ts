@@ -25,7 +25,7 @@ export class DocumentsService {
       );
       return this.allDocumentsParser.parse(response.data);
     } catch (e) {
-      throw new DocumentsFetchError(e instanceof Error ? e : undefined);
+      throw new Error(e instanceof Error ? e.message : undefined);
     }
   }
 
@@ -34,7 +34,7 @@ export class DocumentsService {
       const response = await this.axios.get<string>(`most-recently-created/p/${pageNumber}`);
       return this.recentDocumentsParser.parse(response.data);
     } catch (e) {
-      throw new DocumentsFetchError(e instanceof Error ? e : undefined);
+      throw new Error(e instanceof Error ? e.message : undefined);
     }
   }
 }
