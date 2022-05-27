@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import type { IDocument, IDocumentsResponse } from '../../../domain/document';
+import type { IDocumentsResponse } from '../../../domain/document';
 import { DocumentsFetchError } from '../../errors';
 import type { IPrivateConfiguration } from '../configuration-service';
 import { AllDocumentsParser } from './parser-all-docs';
@@ -29,14 +29,12 @@ export class DocumentsService {
     }
   }
 
-  public async getRecentPagesByPageNumber(pageNumber: number): Promise<Array<IDocument>> {
+  public async getRecentPagesByPageNumber(pageNumber: number): Promise<IDocumentsResponse> {
     try {
       const response = await this.axios.get<string>(`most-recently-created/p/${pageNumber}`);
       return this.recentDocumentsParser.parse(response.data);
     } catch (e) {
       throw new DocumentsFetchError(e instanceof Error ? e : undefined);
     }
-
-    return [];
   }
 }
