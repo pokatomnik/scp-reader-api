@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "tscheck": "tsc --noEmit --skipLibCheck"
+    "tscheck": "tsc --noEmit --skipLibCheck",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "@vercel/node": "^1.15.3",

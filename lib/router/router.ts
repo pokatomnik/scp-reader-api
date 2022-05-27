@@ -1,8 +1,4 @@
-import {
-  VercelResponse,
-  VercelRequest,
-  VercelRequestQuery,
-} from '@vercel/node';
+import { VercelResponse, VercelRequest, VercelRequestQuery } from '@vercel/node';
 import trim from 'lodash/trim';
 import type { IHandler } from './handler';
 
@@ -33,15 +29,9 @@ export class Router {
     }
   ) {}
 
-  public addHandler(
-    this: this,
-    methodRaw: string,
-    pattern: string,
-    handler: IHandler
-  ): this {
+  public addHandler(this: this, methodRaw: string, pattern: string, handler: IHandler): this {
     const method = methodRaw.toLocaleLowerCase();
-    const handlersByMethod: Map<string, IHandler> =
-      this.handlers.get(method) ?? new Map();
+    const handlersByMethod: Map<string, IHandler> = this.handlers.get(method) ?? new Map();
     handlersByMethod.set(pattern, handler);
     this.handlers.set(method, handlersByMethod);
 
@@ -56,10 +46,7 @@ export class Router {
     return part.startsWith('{') && part.endsWith('}');
   }
 
-  private static getParams(
-    partA: string,
-    partB: string
-  ): VercelRequestQuery | null {
+  private static getParams(partA: string, partB: string): VercelRequestQuery | null {
     if (partA === partB) {
       return {};
     }
@@ -91,10 +78,7 @@ export class Router {
         return { found: false };
       }
 
-      const currentParams = Router.getParams(
-        currentPatternPart,
-        currentPathPart
-      );
+      const currentParams = Router.getParams(currentPatternPart, currentPathPart);
       if (currentParams === null) {
         return { found: false };
       }
@@ -111,8 +95,7 @@ export class Router {
     path: string
   ): (request: VercelRequest, response: VercelResponse) => void {
     const method = methodRaw.toLocaleLowerCase();
-    const handlersByMethod: Map<string, IHandler> =
-      this.handlers.get(method) ?? new Map();
+    const handlersByMethod: Map<string, IHandler> = this.handlers.get(method) ?? new Map();
     for (const [pattern, handler] of handlersByMethod.entries()) {
       const match = Router.getMatch(pattern, path);
       if (match.found) {
