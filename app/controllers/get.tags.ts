@@ -1,9 +1,9 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import type { HttpClient } from '../../lib/http-client';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { IHandler } from '../../lib/router';
+import type { TagsService } from '../services/tags-service';
 
-export function makeTagsHandler(params: { httpClient: HttpClient }) {
-  return function getTags(
-    request: VercelRequest,
-    vercelResponse: VercelResponse
-  ) {};
+export class TagsHandler implements IHandler {
+  public constructor(params: { tagsService: TagsService }) {}
+
+  public async handle(request: VercelRequest, response: VercelResponse) {}
 }

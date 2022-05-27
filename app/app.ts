@@ -1,51 +1,68 @@
-import { Router } from '../lib/router';
+import { Router } from '../lib/router/router';
 import { NotFoundError } from '../lib/errors';
-import { makeAllDocumentsHandler } from './controllers/get.documents.all';
-import { makeDocumentsByTagsHandler } from './controllers/get.documents.bytags';
-import { makeRecentDocumentsHandler } from './controllers/get.documents.recent';
-import { makeTagsHandler } from './controllers/get.tags';
-import { makeDocumentHandler } from './controllers/get.document.byid';
-import { HttpClient } from '../lib/http-client';
+
+import { DocumentsHandler } from './controllers/get.documents.all';
+import { DocumentsByTagsHandler } from './controllers/get.documents.bytags';
+import { RecentDocumentsHandler } from './controllers/get.documents.recent';
+import { ConfugurationHandler } from './controllers/get.configuration';
+import { TagsHandler } from './controllers/get.tags';
+
+import { ConfigurationService } from './services/configuration-service';
+import { DocumentsService } from './services/documents-services';
+import { TagsService } from './services/tags-service';
+
+import type { IHandler } from '../lib/router';
 
 export class Application {
-  private readonly httpClient = new HttpClient();
+  private readonly configurationService = new ConfigurationService();
 
-  public readonly router = new Router({
-    notFound(_, response) {
+  private readonly documentsService = new DocumentsService({
+    privateConfiguration: this.configurationService.getPrivateConfiguration(),
+  });
+
+  private readonly tagsService = new TagsService({
+    privateConfiguration: this.configurationService.getPrivateConfiguration(),
+  });
+
+  private readonly handlers = {
+    configuration: new ConfugurationHandler({
+      configurationService: this.configurationService,
+    }),
+    docs: new DocumentsHandler({
+      documentsService: this.documentsService,
+      pageNumberKey: 'pageNumber',
+    }),
+    recentDocs: new RecentDocumentsHandler({
+      documentsService: this.documentsService,
+      pageNumberKey: 'pageNumber',
+    }),
+    docsByTags: new DocumentsByTagsHandler({
+      tagsService: this.tagsService,
+      tagsKey: 'tags',
+    }),
+    tags: new TagsHandler({
+      tagsService: this.tagsService,
+    }),
+  } as const;
+
+  public readonly router: Router;
+
+  private readonly notFoundHandler: IHandler = {
+    handle(_, response) {
       const error = new NotFoundError('No such endpoint');
       response.status(error.HTTPCode).json(error);
     },
-  })
-    .addHandler(
-      'GET',
-      '/v1/documents/all/{pageNumber}',
-      makeAllDocumentsHandler({
-        pageNumberKey: 'pageNumber',
-        httpClient: this.httpClient,
-      })
-    )
-    .addHandler(
-      'GET',
-      '/v1/documents/recent/{pageNumber}',
-      makeRecentDocumentsHandler({
-        pageNumberKey: 'pageNumber',
-      })
-    )
-    .addHandler(
-      'GET',
-      '/v1/documents/{pageId}',
-      makeDocumentHandler({ pageIdKey: 'pageId', httpClient: this.httpClient })
-    )
-    .addHandler(
-      'GET',
-      '/v1/documents/tags/{tags}',
-      makeDocumentsByTagsHandler({ tagsKey: 'tags' })
-    )
-    .addHandler(
-      'GET',
-      '/v1/tags',
-      makeTagsHandler({
-        httpClient: this.httpClient,
-      })
-    );
+  };
+
+  public constructor() {
+    const handlers = this.handlers;
+    this.router = new Router({
+      notFoundHandler: this.notFoundHandler,
+    })
+      .addHandler('GET', '/v1/configuration', handlers.configuration)
+      .addHandler('GET', '/v1/documents/all/{pageNumber}', handlers.docs)
+      .addHandler('GET', '/v1/documents/recent/{pageNumber}', handlers.recentDocs)
+      .addHandler('GET', '/v1/documents/tags/{tags}', handlers.docsByTags)
+      .addHandler('GET', '/v1/tags', handlers.tags);
+  }
 }

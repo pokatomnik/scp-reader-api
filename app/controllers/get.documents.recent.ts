@@ -1,8 +1,14 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { IHandler } from '../../lib/router';
+import type { DocumentsService } from '../services/documents-services';
 
-export function makeRecentDocumentsHandler(params: { pageNumberKey: string }) {
-  return function getRecentDocuments(
-    request: VercelRequest,
-    vercelResponse: VercelResponse
-  ) {};
+export class RecentDocumentsHandler implements IHandler {
+  public constructor(
+    private readonly params: {
+      pageNumberKey: string;
+      documentsService: DocumentsService;
+    }
+  ) {}
+
+  public async handle(request: VercelRequest, response: VercelResponse) {}
 }
