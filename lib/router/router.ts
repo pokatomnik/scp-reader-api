@@ -4,6 +4,7 @@ import {
   VercelRequestQuery,
 } from '@vercel/node';
 import trim from 'lodash/trim';
+import type { IHandler } from './handler';
 
 interface IMatchFound {
   found: true;
@@ -24,14 +25,11 @@ export class Router {
     PATH_SEPARATOR: '/',
   };
 
-  private readonly handlers = new Map<
-    string,
-    Map<string, (request: VercelRequest, response: VercelResponse) => void>
-  >();
+  private readonly handlers = new Map<string, Map<string, IHandler>>();
 
   public constructor(
     private readonly params: {
-      notFound: (request: VercelRequest, response: VercelResponse) => void;
+      notFoundHandler: IHandler;
     }
   ) {}
 
@@ -39,10 +37,11 @@ export class Router {
     this: this,
     methodRaw: string,
     pattern: string,
-    handler: (request: VercelRequest, response: VercelResponse) => void
+    handler: IHandler
   ): this {
     const method = methodRaw.toLocaleLowerCase();
-    const handlersByMethod = this.handlers.get(method) ?? new Map();
+    const handlersByMethod: Map<string, IHandler> =
+      this.handlers.get(method) ?? new Map();
     handlersByMethod.set(pattern, handler);
     this.handlers.set(method, handlersByMethod);
 
@@ -112,18 +111,19 @@ export class Router {
     path: string
   ): (request: VercelRequest, response: VercelResponse) => void {
     const method = methodRaw.toLocaleLowerCase();
-    const handlersByMethod = this.handlers.get(method) ?? new Map();
+    const handlersByMethod: Map<string, IHandler> =
+      this.handlers.get(method) ?? new Map();
     for (const [pattern, handler] of handlersByMethod.entries()) {
       const match = Router.getMatch(pattern, path);
       if (match.found) {
         return (request, response) => {
           request.query = match.params;
-          handler(request, response);
+          handler.handle(request, response);
         };
       }
     }
     return (request, response) => {
-      this.params.notFound(request, response);
+      this.params.notFoundHandler.handle(request, response);
     };
   }
 }
