@@ -1,5 +1,5 @@
 import { Router } from '../lib/router/router';
-import { NotFoundError } from '../lib/errors';
+import { NotFoundError } from './errors';
 
 import { DocumentsHandler } from './controllers/get.documents.all';
 import { DocumentsByTagsHandler } from './controllers/get.documents.bytags';

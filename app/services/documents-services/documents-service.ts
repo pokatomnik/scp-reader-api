@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import type { IDocument } from '../../../domain/document';
-import { DocumentsFetchError } from '../../../lib/errors';
+import { DocumentsFetchError } from '../../errors';
 import type { IPrivateConfiguration } from '../configuration-service';
 
 export class DocumentsService {
@@ -12,9 +12,7 @@ export class DocumentsService {
     });
   }
 
-  public async getPagesByPageNumber(
-    pageNumber: number
-  ): Promise<Array<IDocument>> {
+  public async getPagesByPageNumber(pageNumber: number): Promise<Array<IDocument>> {
     let html: string;
     try {
       const response = await this.axios.get<string>(
@@ -28,14 +26,10 @@ export class DocumentsService {
     return [];
   }
 
-  public async getRecentPagesByPageNumber(
-    pageNumber: number
-  ): Promise<Array<IDocument>> {
+  public async getRecentPagesByPageNumber(pageNumber: number): Promise<Array<IDocument>> {
     let html: string;
     try {
-      const response = await this.axios.get<string>(
-        `most-recently-created/p/${pageNumber}`
-      );
+      const response = await this.axios.get<string>(`most-recently-created/p/${pageNumber}`);
       html = response.data;
     } catch (e) {
       throw new DocumentsFetchError(e instanceof Error ? e : undefined);
