@@ -1,7 +1,4 @@
-import type {
-  IPublicConfiguration,
-  IPrivateConfiguration,
-} from './configuration';
+import type { IPublicConfiguration, IPrivateConfiguration } from './configuration';
 
 export class ConfigurationService {
   private static paths = {

@@ -8,7 +8,7 @@ export class TagsHandler implements IHandler {
 
   public async handle(_: unknown, response: VercelResponse) {
     try {
-      const tags = this.params.tagsService.getTags();
+      const tags = await this.params.tagsService.getTags();
       response.json(tags);
     } catch (e) {
       const error = new TagsFetchError(e instanceof Error ? e : new Error('Failed to fetch tags'));

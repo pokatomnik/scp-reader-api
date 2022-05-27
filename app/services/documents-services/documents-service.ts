@@ -1,10 +1,16 @@
 import axios, { AxiosInstance } from 'axios';
-import type { IDocument } from '../../../domain/document';
+import type { IDocument, IDocumentsResponse } from '../../../domain/document';
 import { DocumentsFetchError } from '../../errors';
 import type { IPrivateConfiguration } from '../configuration-service';
+import { AllDocumentsParser } from './parser-all-docs';
+import { RecentDocumentsParser } from './parser-recent-docs';
 
 export class DocumentsService {
   private readonly axios: AxiosInstance;
+
+  private readonly allDocumentsParser = new AllDocumentsParser();
+
+  private readonly recentDocumentsParser = new RecentDocumentsParser();
 
   public constructor(params: { privateConfiguration: IPrivateConfiguration }) {
     this.axios = axios.create({
@@ -12,25 +18,21 @@ export class DocumentsService {
     });
   }
 
-  public async getPagesByPageNumber(pageNumber: number): Promise<Array<IDocument>> {
-    let html: string;
+  public async getPagesByPageNumber(pageNumber: number): Promise<IDocumentsResponse> {
     try {
       const response = await this.axios.get<string>(
-        `fragment%3Atop-rated-by-year-0/p/${pageNumber}`
+        `/fragment:top-rated-by-year-0/p/${pageNumber}`
       );
-      html = response.data;
+      return this.allDocumentsParser.parse(response.data);
     } catch (e) {
       throw new DocumentsFetchError(e instanceof Error ? e : undefined);
     }
-
-    return [];
   }
 
   public async getRecentPagesByPageNumber(pageNumber: number): Promise<Array<IDocument>> {
-    let html: string;
     try {
       const response = await this.axios.get<string>(`most-recently-created/p/${pageNumber}`);
-      html = response.data;
+      return this.recentDocumentsParser.parse(response.data);
     } catch (e) {
       throw new DocumentsFetchError(e instanceof Error ? e : undefined);
     }
