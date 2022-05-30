@@ -1,26 +1,24 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelRequestQuery, VercelResponse } from '@vercel/node';
 import type { IHandler } from '../../lib/router';
+import type { IParamsExtractor } from '../../lib/router/params-extractor';
 import { DocumentsFetchError, IncorrectParametersError } from '../errors';
 import type { DocumentsService } from '../services/documents-services';
 
 export class DocumentsHandler implements IHandler {
   public constructor(
     private readonly params: {
-      pageNumberKey: string;
+      pageNumberExtractor: IParamsExtractor<number>;
       documentsService: DocumentsService;
     }
   ) {}
 
   public async handle(request: VercelRequest, response: VercelResponse) {
-    const pageNumberStr = request.query[this.params.pageNumberKey]?.toString();
-    if (pageNumberStr === undefined) {
-      const error = new IncorrectParametersError(`Incorrect pageNumber: ${pageNumberStr}`);
-      return response.status(error.HTTPCode).json(error);
-    }
-
-    const pageNumber = Number.parseInt(pageNumberStr);
-    if (Number.isNaN(pageNumber)) {
-      const error = new IncorrectParametersError(`Incorrect pageNumber: ${pageNumberStr}`);
+    let pageNumber: number;
+    try {
+      pageNumber = this.params.pageNumberExtractor.extract(request.query);
+    } catch (e) {
+      const originalError = e instanceof Error ? e : new Error('Incorrect page number');
+      const error = new IncorrectParametersError(originalError.message);
       return response.status(error.HTTPCode).json(error);
     }
 

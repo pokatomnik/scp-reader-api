@@ -12,6 +12,8 @@ import { DocumentsService } from './services/documents-services';
 import { TagsService } from './services/tags-service';
 
 import type { IHandler } from '../lib/router';
+import { PageNumberExtractor } from './controllers/page-extractor';
+import { TagsExtractor } from './controllers/tags-extractor';
 
 export class Application {
   private readonly configurationService = new ConfigurationService();
@@ -24,27 +26,6 @@ export class Application {
     privateConfiguration: this.configurationService.getPrivateConfiguration(),
   });
 
-  private readonly handlers = {
-    configuration: new ConfugurationHandler({
-      configurationService: this.configurationService,
-    }),
-    docs: new DocumentsHandler({
-      documentsService: this.documentsService,
-      pageNumberKey: 'pageNumber',
-    }),
-    recentDocs: new RecentDocumentsHandler({
-      documentsService: this.documentsService,
-      pageNumberKey: 'pageNumber',
-    }),
-    docsByTags: new DocumentsByTagsHandler({
-      tagsService: this.tagsService,
-      tagsKey: 'tags',
-    }),
-    tags: new TagsHandler({
-      tagsService: this.tagsService,
-    }),
-  } as const;
-
   public readonly router: Router;
 
   private readonly notFoundHandler: IHandler = {
@@ -55,14 +36,46 @@ export class Application {
   };
 
   public constructor() {
-    const handlers = this.handlers;
     this.router = new Router({
       notFoundHandler: this.notFoundHandler,
     })
-      .addHandler('GET', '/v1/configuration', handlers.configuration)
-      .addHandler('GET', '/v1/documents/all/{pageNumber}', handlers.docs)
-      .addHandler('GET', '/v1/documents/recent/{pageNumber}', handlers.recentDocs)
-      .addHandler('GET', '/v1/documents/tags/{tags}', handlers.docsByTags)
-      .addHandler('GET', '/v1/tags', handlers.tags);
+      .addHandler(
+        'GET',
+        '/v1/configuration',
+        new ConfugurationHandler({
+          configurationService: this.configurationService,
+        })
+      )
+      .addHandler(
+        'GET',
+        '/v1/documents/all/{pageNumber}',
+        new DocumentsHandler({
+          documentsService: this.documentsService,
+          pageNumberExtractor: new PageNumberExtractor('pageNumber'),
+        })
+      )
+      .addHandler(
+        'GET',
+        '/v1/documents/recent/{pageNumber}',
+        new RecentDocumentsHandler({
+          documentsService: this.documentsService,
+          pageNumberExtractor: new PageNumberExtractor('pageNumber'),
+        })
+      )
+      .addHandler(
+        'GET',
+        '/v1/documents/tags/{tags}',
+        new DocumentsByTagsHandler({
+          tagsService: this.tagsService,
+          tagsExtractor: new TagsExtractor('tags'),
+        })
+      )
+      .addHandler(
+        'GET',
+        '/v1/tags',
+        new TagsHandler({
+          tagsService: this.tagsService,
+        })
+      );
   }
 }
