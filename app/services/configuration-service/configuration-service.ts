@@ -1,3 +1,4 @@
+import { env } from 'process';
 import type { IPublicConfiguration, IPrivateConfiguration } from './configuration';
 
 export class ConfigurationService {
@@ -20,6 +21,9 @@ export class ConfigurationService {
     return {
       urls: {
         pageViewBaseUrl: ConfigurationService.paths.DOCUMENT_VIEW_BASE_URL,
+      },
+      contacts: {
+        email: env.DEVELOPER_EMAIL ?? null,
       },
     };
   }
